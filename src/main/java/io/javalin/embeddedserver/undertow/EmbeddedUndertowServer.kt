@@ -16,7 +16,7 @@ class EmbeddedUndertowServer(private val serverBuilder: Undertow.Builder, privat
         deployment.deploymentName = "javalin"
         deployment.addServlets(Servlets.servlet("javalinServlet", object : HttpServlet() {
             override fun service(req: HttpServletRequest?, resp: HttpServletResponse?) {
-                super.service(req, resp)
+                resp?.writer!!.write("Test!")
             }
         }.javaClass).addMapping("/"))
         val deploymentManager = Servlets.defaultContainer().addDeployment(deployment)
