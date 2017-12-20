@@ -23,7 +23,7 @@ class UndertowResourceHandler(private val staticFileConfig: StaticFileConfig?) :
             basePath = staticFileConfig.path
             isInitialized = true
             if(staticFileConfig.location == Location.CLASSPATH) {
-                resourceHandler = resource(ClassPathResourceManager(EmbeddedUndertowServer::class.java.classLoader, staticFileConfig.path))
+                resourceHandler = resource(ClassPathResourceManager(EmbeddedUndertowServer::class.java.classLoader, File(basePath).path))
             } else if (staticFileConfig.location == Location.EXTERNAL) {
                 resourceHandler = resource(PathResourceManager(Paths.get(basePath))).setDirectoryListingEnabled(true)
             }
