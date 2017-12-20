@@ -9,6 +9,6 @@ import io.undertow.Undertow
 class EmbeddedUndertowFactory(server: () -> Undertow.Builder = { Undertow.builder() }): EmbeddedServerFactory {
     private val server = server()
     override fun create(javalinServlet: JavalinServlet, staticFileConfig: StaticFileConfig?): EmbeddedServer {
-        return EmbeddedUndertowServer(server, javalinServlet)
+        return EmbeddedUndertowServer(server, javalinServlet.apply { staticResourceHandler = UndertowResourceHandler(staticFileConfig) })
     }
 }
