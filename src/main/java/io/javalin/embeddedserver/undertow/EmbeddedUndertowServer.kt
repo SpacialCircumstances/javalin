@@ -13,16 +13,10 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class EmbeddedUndertowServer(private val serverBuilder: Undertow.Builder, private final val javalinServlet: JavalinServlet) : EmbeddedServer {
+class EmbeddedUndertowServer(private val serverBuilder: (port: Int, jservlet: JavalinServlet) -> Undertow, private val javalinServlet: JavalinServlet) : EmbeddedServer {
     lateinit var server: Undertow
     override fun start(port: Int): Int {
-        val deployment = Servlets.deployment().setClassLoader(EmbeddedUndertowServer::class.java.classLoader)
-        deployment.contextPath = "/"
-        deployment.deploymentName = "javalin"
-        deployment.addServlets(Servlets.servlet("javalinServlet", EmbeddedUndertowServlet::class.java, UndertowServletFactory(javalinServlet)).addMapping("/"))
-        val deploymentManager = Servlets.defaultContainer().addDeployment(deployment)
-        deploymentManager.deploy()
-        server = serverBuilder.addHttpListener(port, "localhost").setHandler(deploymentManager.start()).build()
+        server = serverBuilder(port, javalinServlet)
         server.start()
         return 0
     }
