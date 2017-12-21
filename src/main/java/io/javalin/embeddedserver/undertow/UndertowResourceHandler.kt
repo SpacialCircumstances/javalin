@@ -18,6 +18,7 @@ class UndertowResourceHandler(private val staticFileConfig: StaticFileConfig?) :
     private var isInitialized = false
     private var basePath = ""
     private var resourceHandler: ResourceHandler? = null
+    private val successStatusCodes = listOf(200, 304)
     init {
         if(staticFileConfig != null) {
             basePath = staticFileConfig.path
@@ -34,7 +35,8 @@ class UndertowResourceHandler(private val staticFileConfig: StaticFileConfig?) :
             val handler = resourceHandler!!
             val exchange = ((httpRequest as CachedRequestWrapper).request as HttpServletRequestImpl).exchange
             handler.handleRequest(exchange)
-            return true
+            val status = exchange.statusCode
+            return successStatusCodes.contains(status)
         }
         return false
     }
