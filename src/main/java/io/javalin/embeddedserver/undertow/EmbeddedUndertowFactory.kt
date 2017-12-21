@@ -9,6 +9,9 @@ import io.undertow.servlet.Servlets
 
 class EmbeddedUndertowFactory: EmbeddedServerFactory {
     override fun create(javalinServlet: JavalinServlet, staticFileConfig: StaticFileConfig?): EmbeddedServer {
+        javalinServlet.apply {
+            staticResourceHandler = UndertowResourceHandler(staticFileConfig)
+        }
         return EmbeddedUndertowServer({ port: Int, jservlet: JavalinServlet -> buildServer(port, jservlet)}, javalinServlet)
     }
 
