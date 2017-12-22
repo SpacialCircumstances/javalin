@@ -10,14 +10,14 @@ import io.undertow.servlet.Servlets
 class EmbeddedUndertowFactory: EmbeddedServerFactory {
     override fun create(javalinServlet: JavalinServlet, staticFileConfig: StaticFileConfig?): EmbeddedServer {
         javalinServlet.apply {
-            staticResourceHandler = UndertowResourceHandler(staticFileConfig)
+            staticResourceHandler = UndertowResourceHandler(staticFileConfig, contextPath)
         }
         return EmbeddedUndertowServer({ port: Int, jservlet: JavalinServlet -> buildServer(port, jservlet)}, javalinServlet)
     }
 
     private fun buildServer(port: Int, javalinServlet: JavalinServlet): Undertow {
         val deployment = Servlets.deployment().setClassLoader(EmbeddedUndertowServer::class.java.classLoader)
-        deployment.contextPath = "/"
+        deployment.contextPath = javalinServlet.contextPath
         deployment.deploymentName = "javalin"
         deployment.addServlets(Servlets.servlet("javalinServlet", EmbeddedUndertowServlet::class.java, UndertowServletFactory(javalinServlet)).addMapping("/"))
         val deploymentManager = Servlets.defaultContainer().addDeployment(deployment)
