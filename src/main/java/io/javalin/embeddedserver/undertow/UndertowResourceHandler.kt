@@ -44,6 +44,8 @@ class UndertowResourceHandler(private val staticFileConfig: StaticFileConfig?, p
             exchange.requestPath = exchange.requestPath.removePrefix(contextPath)
             exchange.relativePath = exchange.relativePath.removePrefix(contextPath)
             exchange.resolvedPath = exchange.resolvedPath.removePrefix(contextPath)
+            val maxAge = if (exchange.requestPath.startsWith("immutable")) 31622400 else 0
+            httpResponse.setHeader("Cache-Control", "max-age=$maxAge")
             handler.handleRequest(exchange)
             val status = exchange.statusCode
             return successStatusCodes.contains(status)
