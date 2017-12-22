@@ -46,8 +46,9 @@ public class TestContextPath {
         Javalin app = createAppWithContextPath("/context-path")
             .get("/hello", ctx -> ctx.result("Hello World"))
             .start();
-        assertThat(GET_asString("/hello").getBody(), is("Not found. Request is below context-path (context-path: '/context-path')"));
-        assertThat(GET_asString("/context-path/hello").getBody(), is("Hello World"));
+        int port = app.port();
+        assertThat(GET_asString(port, "/hello").getBody(), is("Not found. Request is below context-path (context-path: '/context-path')"));
+        assertThat(GET_asString(port, "/context-path/hello").getBody(), is("Hello World"));
         app.stop();
     }
 
@@ -56,32 +57,35 @@ public class TestContextPath {
         Javalin app = createAppWithContextPath("/context-path/path-context")
             .get("/hello", ctx -> ctx.result("Hello World"))
             .start();
-        assertThat(GET_asString("/context-path/").getStatus(), is(404));
-        assertThat(GET_asString("/context-path/path-context/hello").getBody(), is("Hello World"));
+        int port = app.port();
+        assertThat(GET_asString(port, "/context-path/").getStatus(), is(404));
+        assertThat(GET_asString(port, "/context-path/path-context/hello").getBody(), is("Hello World"));
         app.stop();
     }
 
     @Test
     public void test_staticFiles_work() throws Exception {
         Javalin app = createAppWithContextPath("/context-path").enableStaticFiles("/public").start();
-        assertThat(GET_asString("/script.js").getStatus(), is(404));
-        assertThat(GET_asString("/context-path/script.js").getBody(), containsString("JavaScript works"));
+        int port = app.port();
+        assertThat(GET_asString(port, "/script.js").getStatus(), is(404));
+        assertThat(GET_asString(port, "/context-path/script.js").getBody(), containsString("JavaScript works"));
         app.stop();
     }
 
     @Test
     public void test_welcomeFile_works() throws Exception {
         Javalin app = createAppWithContextPath("/context-path").enableStaticFiles("/public").start();
-        assertThat(GET_asString("/context-path/subdir/").getBody(), is("<h1>Welcome file</h1>"));
+        int port = app.port();
+        assertThat(GET_asString(port, "/context-path/subdir/").getBody(), is("<h1>Welcome file</h1>"));
         app.stop();
     }
 
     private Javalin createAppWithContextPath(String contextPath) {
-        return Javalin.create().port(7733).contextPath(contextPath);
+        return Javalin.create().port(0).contextPath(contextPath);
     }
 
-    private static HttpResponse<String> GET_asString(String pathname) throws Exception {
-        return Unirest.get("http://localhost:7733/" + pathname).asString();
+    private static HttpResponse<String> GET_asString(int port, String pathname) throws Exception {
+        return Unirest.get("http://localhost:" + port + "/" + pathname).asString();
     }
 
 }
