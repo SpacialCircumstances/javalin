@@ -47,7 +47,7 @@ public class TestContextPath {
             .get("/hello", ctx -> ctx.result("Hello World"))
             .start();
         int port = app.port();
-        assertThat(GET_asString(port, "/hello").getBody(), is("Not found. Request is below context-path (context-path: '/context-path')"));
+        assertThat(GET_asString(port, "/hello").getStatus(), is(404));
         assertThat(GET_asString(port, "/context-path/hello").getBody(), is("Hello World"));
         app.stop();
     }
