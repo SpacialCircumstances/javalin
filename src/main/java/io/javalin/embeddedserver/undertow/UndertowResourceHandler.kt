@@ -23,6 +23,7 @@ class UndertowResourceHandler(private val staticFileConfig: StaticFileConfig?, p
     init {
         if (staticFileConfig != null) {
             basePath = staticFileConfig.path.removePrefix("/")
+            checkIfExists(basePath, staticFileConfig.location)
             isInitialized = true
             if (staticFileConfig.location == Location.CLASSPATH) {
                 resourceHandler = resource(ClassPathResourceManager(EmbeddedUndertowServer::class.java.classLoader, File(basePath).path))
@@ -48,5 +49,14 @@ class UndertowResourceHandler(private val staticFileConfig: StaticFileConfig?, p
             return successStatusCodes.contains(status)
         }
         return false
+    }
+
+    private fun checkIfExists(basePath: String, loc: Location) {
+        if(loc == Location.EXTERNAL) {
+            val file = File(basePath)
+            if (!file.exists() || !file.isDirectory) {
+                throw RuntimeException("Static files path not found")
+            }
+        }
     }
 }
